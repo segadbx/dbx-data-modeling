@@ -1,0 +1,23 @@
+resources:
+  catalogs:
+    data_modeling:
+      name: ${var.catalog_name}
+      comment: "Dimensional Modeling Agent POC catalog."
+      storage_root: ${var.catalog_storage_root}
+  schemas:
+    bronze:
+      catalog_name: ${var.catalog_name}
+      name: ${var.bronze_schema}
+      comment: "Raw landed source data after Auto Loader."
+    silver:
+      catalog_name: ${var.catalog_name}
+      name: ${var.silver_schema}
+      comment: "Cleaned, typed, deduplicated source tables (SDP pipeline output)."
+    gold:
+      catalog_name: ${var.catalog_name}
+      name: ${var.gold_schema}
+      comment: "Dimensional model (fact/dim) produced by the agent + apply_ddl job."
+    agent_state:
+      catalog_name: ${var.catalog_name}
+      name: ${var.agent_state_schema}
+      comment: "Audit log of approved proposals; synced from Lakebase."

@@ -1,0 +1,61 @@
+resources:
+  jobs:
+    synth_data_gen:
+      name: "[${bundle.target}] synth data + bronze ingest"
+      description: |
+        Generates synthetic source data into the landing volume, then Auto Loaders into
+        bronze.* Delta and applies COMMENT ON TABLE/COLUMN for semantic context.
+
+      parameters:
+        - name: catalog
+          default: ${var.catalog_name}
+        - name: bronze_schema
+          default: ${var.bronze_schema}
+        - name: silver_schema
+          default: ${var.silver_schema}
+        - name: volume_path
+          default: /Volumes/${var.catalog_name}/${var.bronze_schema}/${var.landing_volume_name}
+        - name: scale
+          default: ${var.synth_scale}
+        - name: rows
+          default: ${var.synth_rows_override}
+
+      tasks:
+        - task_key: generate
+          environment_key: serverless_env
+          spark_python_task:
+            python_file: ../../src/synth/generate_to_volume.py
+            parameters:
+              - "--catalog"
+              - "{{job.parameters.catalog}}"
+              - "--bronze-schema"
+              - "{{job.parameters.bronze_schema}}"
+              - "--silver-schema"
+              - "{{job.parameters.silver_schema}}"
+              - "--volume-path"
+              - "{{job.parameters.volume_path}}"
+              - "--scale"
+              - "{{job.parameters.scale}}"
+              - "--rows"
+              - "{{job.parameters.rows}}"
+
+        - task_key: bronze_ingest
+          depends_on:
+            - task_key: generate
+          environment_key: serverless_env
+          spark_python_task:
+            python_file: ../../src/synth/bronze_ingest.py
+            parameters:
+              - "--catalog"
+              - "{{job.parameters.catalog}}"
+              - "--bronze-schema"
+              - "{{job.parameters.bronze_schema}}"
+              - "--volume-path"
+              - "{{job.parameters.volume_path}}"
+
+      environments:
+        - environment_key: serverless_env
+          spec:
+            client: "1"
+            dependencies:
+              - dbldatagen>=0.4.0

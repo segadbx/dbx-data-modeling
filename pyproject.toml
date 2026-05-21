@@ -1,0 +1,50 @@
+[project]
+name = "dbx-data-modeling-agent"
+version = "0.1.0"
+description = "AI-Automated Dimensional Modeling POC — synthetic EAM data + LangGraph agent + apx app."
+requires-python = ">=3.11,<3.13"
+
+dependencies = [
+  # Data generation + Spark
+  "dbldatagen>=0.4.0",
+  "pyspark>=3.5.0",
+  # Agent runtime
+  "langgraph>=0.2.50",
+  "langgraph-checkpoint-postgres>=2.0.0",
+  "langchain-core>=0.3.0",
+  "databricks-langchain>=0.4.0",
+  "mlflow>=2.18.0",
+  "jinja2>=3.1.0",
+  # Databricks SDKs
+  "databricks-sdk>=0.39.0",
+  "databricks-sql-connector>=3.5.0",
+  # Backend / persistence
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.32.0",
+  "psycopg[binary]>=3.2.0",
+  "sqlalchemy>=2.0.0",
+  "alembic>=1.13.0",
+  "pydantic>=2.9.0",
+  # Utilities
+  "scikit-learn>=1.5.0",  # cosine sim for reuse_scanner
+  "numpy>=1.26.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.24.0",
+  "databricks-connect>=15.0.0",
+  "ruff>=0.6.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["src*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

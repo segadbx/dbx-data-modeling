@@ -1,0 +1,87 @@
+{
+  "_meta": {
+    "description": "Reference dimensions the agent should reuse instead of inventing duplicates. Stand-in for a Vector Search corpus while gold is empty.",
+    "version": 1
+  },
+  "dims": [
+    {
+      "name": "dim_date",
+      "grain": "calendar date",
+      "columns": [
+        {"name": "date_key", "type": "int", "comment": "YYYYMMDD integer surrogate key"},
+        {"name": "full_date", "type": "date", "comment": "Calendar date"},
+        {"name": "day_of_week", "type": "string", "comment": "Mon..Sun"},
+        {"name": "month_num", "type": "int"},
+        {"name": "quarter", "type": "int"},
+        {"name": "year", "type": "int"},
+        {"name": "is_weekend", "type": "boolean"},
+        {"name": "fiscal_period", "type": "string"}
+      ],
+      "scd": "static",
+      "use_when": "Any fact with a date/timestamp column should FK to dim_date rather than recreate calendar attributes."
+    },
+    {
+      "name": "dim_employee",
+      "grain": "employee (one row per person, SCD2 on role/department changes)",
+      "columns": [
+        {"name": "employee_sk", "type": "bigint", "comment": "Surrogate key"},
+        {"name": "employee_id", "type": "string", "comment": "Natural key — matches source labor_id"},
+        {"name": "person_name", "type": "string"},
+        {"name": "craft", "type": "string"},
+        {"name": "supervisor_id", "type": "string"},
+        {"name": "site_code", "type": "string"},
+        {"name": "is_supervisor", "type": "boolean"},
+        {"name": "scd_start_date", "type": "date"},
+        {"name": "scd_end_date", "type": "date"},
+        {"name": "is_current", "type": "boolean"}
+      ],
+      "scd": "type2",
+      "use_when": "Any fact joining on a worker/technician/labor identifier should FK to dim_employee, not a fresh labor dim."
+    },
+    {
+      "name": "dim_location",
+      "grain": "physical location (one row per location_id)",
+      "columns": [
+        {"name": "location_sk", "type": "bigint"},
+        {"name": "location_id", "type": "string", "comment": "Natural key"},
+        {"name": "location_name", "type": "string"},
+        {"name": "location_type", "type": "string"},
+        {"name": "site_code", "type": "string"},
+        {"name": "parent_location_id", "type": "string"}
+      ],
+      "scd": "type1",
+      "use_when": "Any fact referencing a physical place (asset location, work location, inventory location) FKs here."
+    },
+    {
+      "name": "dim_asset",
+      "grain": "asset (one row per asset_id, SCD2 on status/criticality changes)",
+      "columns": [
+        {"name": "asset_sk", "type": "bigint"},
+        {"name": "asset_id", "type": "string"},
+        {"name": "asset_description", "type": "string"},
+        {"name": "asset_type", "type": "string"},
+        {"name": "manufacturer", "type": "string"},
+        {"name": "criticality", "type": "int"},
+        {"name": "install_date", "type": "date"},
+        {"name": "scd_start_date", "type": "date"},
+        {"name": "scd_end_date", "type": "date"},
+        {"name": "is_current", "type": "boolean"}
+      ],
+      "scd": "type2",
+      "use_when": "All asset-related facts (workorders, meter readings, downtime) FK to dim_asset."
+    },
+    {
+      "name": "dim_vendor",
+      "grain": "vendor (one row per vendor_id)",
+      "columns": [
+        {"name": "vendor_sk", "type": "bigint"},
+        {"name": "vendor_id", "type": "string"},
+        {"name": "vendor_name", "type": "string"},
+        {"name": "vendor_type", "type": "string"},
+        {"name": "country", "type": "string"}
+      ],
+      "scd": "type1",
+      "use_when": "Purchasing / parts facts FK here."
+    }
+  ]
+}

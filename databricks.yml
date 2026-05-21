@@ -1,0 +1,92 @@
+bundle:
+  name: dbx-data-modeling-agent
+  engine: direct
+
+include:
+  - resources/*.yml
+  - resources/*/*.yml
+
+variables:
+  # ----- Unity Catalog ---------------------------------------------------
+  catalog_name:
+    description: Unity Catalog catalog name for the POC.
+    default: data_modeling
+  bronze_schema:
+    description: Schema for raw landing Delta tables.
+    default: dm_bronze
+  silver_schema:
+    description: Schema for cleaned, typed silver tables.
+    default: dm_silver
+  gold_schema:
+    description: Schema for the agent-generated dimensional model.
+    default: dm_gold
+  agent_state_schema:
+    description: Schema for audit log, registered model, inference logging.
+    default: dm_agent_state
+  landing_volume_name:
+    description: Name of the UC volume that receives synthetic parquet.
+    default: landing
+  catalog_storage_root:
+    description: Managed storage root for the catalog (required when workspace has Default Storage enabled).
+    default: abfss://unity-catalog-storage@dbstoragecwea5zazgpfeu.dfs.core.windows.net/7405606556962204/sk_data_modeling
+
+  # ----- LLM ------------------------------------------------------------
+  llm_endpoint:
+    description: Name of the Model Serving endpoint backing the agent's LLM calls.
+    default: databricks-claude-sonnet-4
+
+  # ----- Compute / warehouse --------------------------------------------
+  warehouse_id:
+    description: SQL warehouse used by the apply_ddl job + app catalog browser + eval scorers.
+    default: "b17afc5126698538"
+
+  # ----- Lakebase --------------------------------------------------------
+  lakebase_instance_name:
+    description: Lakebase database instance name.
+    default: dim-modeler-pg
+  lakebase_capacity:
+    description: Lakebase instance capacity tier (CU_1, CU_2, ...).
+    default: CU_1
+  lakebase_database_name:
+    description: Logical database created inside the Lakebase instance.
+    default: modeler
+  lakebase_database_catalog_name:
+    description: UC database-catalog name that maps to the Lakebase DB (for UC registration).
+    default: dim_modeler_lakebase
+
+  # ----- App -------------------------------------------------------------
+  app_name:
+    description: Databricks App name.
+    default: dim-modeler
+
+  # ----- Synthetic data -------------------------------------------------
+  synth_scale:
+    description: Global multiplier on default row counts in the synth job (1.0 = hundreds).
+    default: "1.0"
+  synth_rows_override:
+    description: |
+      Per-table row count override, comma-separated. E.g. `workorder=5000,asset=1000`.
+      Beats `synth_scale` for the listed tables. Leave empty for scale-only behavior.
+    default: ""
+
+  # ----- MLflow ----------------------------------------------------------
+  mlflow_experiment_path:
+    description: MLflow experiment for eval runs.
+    default: /Shared/dim_modeler/eval
+
+  # ----- Notifications --------------------------------------------------
+  notifications_email:
+    description: Email for job failure notifications.
+    default: ""
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    run_as:
+      user_name: ${workspace.current_user.userName}
+
+experimental:
+  skip_name_prefix_for_schema: true

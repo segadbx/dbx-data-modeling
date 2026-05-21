@@ -1,0 +1,33 @@
+command: ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "debug"]
+# Resource refs (llm_endpoint, warehouse, apply_job, lakebase, experiment) are bound at
+# deploy time by resources/apps/modeler_app.yml. Static config values (catalog name,
+# schema names) are stamped in here so they live next to the app definition rather than
+# buried in DAB vars. Update both this file and `databricks.yml` if a name changes.
+
+env:
+  - name: APP_TITLE
+    value: dim-modeler
+  - name: CATALOG_NAME
+    value: data_modeling
+  - name: BRONZE_SCHEMA
+    value: dm_bronze
+  - name: SILVER_SCHEMA
+    value: dm_silver
+  - name: GOLD_SCHEMA
+    value: dm_gold
+  - name: AGENT_STATE_SCHEMA
+    value: dm_agent_state
+  - name: LAKEBASE_DB
+    value: modeler
+  - name: LLM_ENDPOINT_NAME
+    valueFrom: llm_endpoint
+  - name: MLFLOW_EXPERIMENT
+    value: /Shared/dim_modeler/eval
+  - name: APPLY_JOB_ID
+    valueFrom: apply_job
+  - name: DATABRICKS_WAREHOUSE_ID
+    valueFrom: warehouse
+  # No LAKEBASE_INSTANCE_NAME — `valueFrom: <database-resource>` returns the host DNS,
+  # not the instance name (which the SDK's generate_database_credential requires).
+  # The Apps platform auto-injects PGHOST/PGPORT/PGUSER/PGDATABASE/PGAPPNAME; the agent
+  # resolves the instance name from PGHOST at runtime.

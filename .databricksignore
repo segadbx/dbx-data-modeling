@@ -1,0 +1,153 @@
+# .databricksignore — patterns excluded from `databricks bundle deploy` upload.
+# Same syntax as .gitignore. Keep in sync with .gitignore plus a few extras
+# (e.g. the React frontend source, which we do NOT need in the workspace —
+# only the built `dist/` is served by the App).
+
+# -----------------------------------------------------------------------------
+# Python — caches, virtualenvs, packaging artifacts
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+.nox/
+.hypothesis/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Build outputs — the bundle's `artifacts:` section rebuilds the wheel,
+# so we don't ship stale local artifacts. Note we scope `dist/` to the
+# Python wheel build dir under src/lib/, because src/app/frontend/dist/
+# is the *built SPA* and must be shipped (it's what main.py serves).
+build/
+src/lib/dist/
+*.whl
+*.tar.gz
+sdist/
+wheels/
+pip-wheel-metadata/
+
+# uv / poetry / pdm caches
+.uv-cache/
+.poetry/
+
+# -----------------------------------------------------------------------------
+# Databricks
+# -----------------------------------------------------------------------------
+.databricks/
+.databricks-bundle/
+bundle.snapshot
+
+# -----------------------------------------------------------------------------
+# Node / frontend
+# -----------------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# The React source under src/app/frontend/ is built into src/app/frontend/dist/
+# at deploy time. We ship the built `dist/` (needed by main.py at runtime) but
+# skip every other frontend file to keep the upload small.
+src/app/frontend/node_modules/
+src/app/frontend/.vite/
+src/app/frontend/src/
+src/app/frontend/public/
+src/app/frontend/index.html
+src/app/frontend/package.json
+src/app/frontend/package-lock.json
+src/app/frontend/pnpm-lock.yaml
+src/app/frontend/yarn.lock
+src/app/frontend/tsconfig*.json
+src/app/frontend/vite.config.*
+src/app/frontend/eslint.config.*
+src/app/frontend/.eslintrc*
+src/app/frontend/.prettierrc*
+
+# -----------------------------------------------------------------------------
+# Tests — not needed at runtime
+# -----------------------------------------------------------------------------
+tests/
+test/
+
+# -----------------------------------------------------------------------------
+# IDE / editors
+# -----------------------------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# -----------------------------------------------------------------------------
+# Env / secrets — never upload these
+# -----------------------------------------------------------------------------
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+secrets.yml
+secrets.yaml
+
+# -----------------------------------------------------------------------------
+# OS junk
+# -----------------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# -----------------------------------------------------------------------------
+# Git internals
+# -----------------------------------------------------------------------------
+.git/
+.gitattributes
+.github/
+
+# -----------------------------------------------------------------------------
+# Claude / AI assistant artifacts
+# -----------------------------------------------------------------------------
+.claude/
+CLAUDE.md
+PLAN.md
+
+# -----------------------------------------------------------------------------
+# Logs
+# -----------------------------------------------------------------------------
+*.log
+logs/
+
+# -----------------------------------------------------------------------------
+# Lock files — keep uv.lock for reproducibility, exclude others if irrelevant
+# -----------------------------------------------------------------------------
+# uv.lock     # keep — used for reproducible builds
+Pipfile.lock
+poetry.lock

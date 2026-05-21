@@ -1,0 +1,30 @@
+# Pinned deps for the Databricks App container. The App build picks this up
+# from source_code_path. Pins for the agent runtime are copied from the former
+# requirements-agent.txt so the in-process agent uses the same versions it was
+# validated against on Model Serving.
+
+# Web stack
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.9.0
+
+# Persistence
+psycopg[binary]==3.2.3
+sqlalchemy>=2.0.0
+
+# Agent runtime (now in-process)
+mlflow==2.22.4
+langgraph==0.2.61
+langgraph-checkpoint==2.0.9
+langgraph-checkpoint-postgres==2.0.7
+langchain-core==0.3.25
+databricks-langchain==0.4.1
+
+# Databricks SDKs
+databricks-sdk==0.65.0
+databricks-sql-connector==4.2.6
+
+# Templating + ML utilities (used by ddl_renderer and reuse_scanner)
+jinja2==3.1.4
+scikit-learn>=1.5,<1.7
+numpy>=1.26,<2.2

@@ -1,0 +1,15 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Catalog from "./pages/Catalog";
+import ModelCanvas from "./pages/ModelCanvas";
+import Chat from "./pages/Chat";
+import Approvals from "./pages/Approvals";
+import Compare from "./pages/Compare";
+import { ChatProvider } from "./state/ChatContext";
+import { AppShell } from "./shell/AppShell";
+import { ToastProvider } from "./ui/Toast";
+import { ErrorBoundary } from "./ui/ErrorBoundary";
+import "./styles/index.css";
+ReactDOM.createRoot(document.getElementById("root")).render(_jsx(React.StrictMode, { children: _jsx(BrowserRouter, { children: _jsx(ToastProvider, { children: _jsx(ChatProvider, { children: _jsx(AppShell, { children: _jsx(ErrorBoundary, { children: _jsxs(Routes, { children: [_jsx(Route, { path: "/", element: _jsx(Catalog, {}) }), _jsx(Route, { path: "/chat", element: _jsx(Chat, {}) }), _jsx(Route, { path: "/canvas", element: _jsx(ModelCanvas, {}) }), _jsx(Route, { path: "/approvals", element: _jsx(Approvals, {}) }), _jsx(Route, { path: "/compare", element: _jsx(Compare, {}) })] }) }) }) }) }) }) }));

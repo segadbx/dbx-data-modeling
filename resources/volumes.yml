@@ -1,0 +1,8 @@
+resources:
+  volumes:
+    landing:
+      catalog_name: ${var.catalog_name}
+      schema_name: ${var.bronze_schema}
+      name: ${var.landing_volume_name}
+      volume_type: MANAGED
+      comment: "Drop zone for synthetic parquet files before Auto Loader picks them up."

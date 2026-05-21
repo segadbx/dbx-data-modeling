@@ -1,0 +1,10 @@
+/* Order matters: tokens first, then reset, primitives, layout, pages. */
+@import "./tokens.css";
+@import "./reset.css";
+@import "./primitives.css";
+@import "./layout.css";
+@import "./pages/catalog.css";
+@import "./pages/chat.css";
+@import "./pages/approvals.css";
+@import "./pages/compare.css";
+@import "./pages/canvas.css";

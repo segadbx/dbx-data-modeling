@@ -1,0 +1,54 @@
+resources:
+  apps:
+    modeler_app:
+      name: ${var.app_name}
+      description: "Browse silver catalog, run the modeler agent, approve & apply gold DDL."
+      source_code_path: ../../src/app
+
+      user_api_scopes:
+        - sql
+        - genie
+        - postgres
+        - model-serving
+        - catalog.catalogs:read
+        - catalog.schemas:read
+        - catalog.tables:read
+        - catalog.connections
+        - files
+        - ai-gateway
+        - vector-search
+        - workspace.workspace
+        - mcp.external
+        - mcp.functions
+        - serving.serving-endpoints
+        
+      resources:
+        - name: llm_endpoint
+          description: Foundation-model serving endpoint the in-process agent calls.
+          serving_endpoint:
+            name: ${var.llm_endpoint}
+            permission: CAN_QUERY
+
+        - name: warehouse
+          description: SQL warehouse for catalog browsing + DDL apply.
+          sql_warehouse:
+            id: ${var.warehouse_id}
+            permission: CAN_USE
+
+        - name: apply_job
+          description: Job that applies approved DDL.
+          job:
+            id: ${resources.jobs.apply_ddl.id}
+            permission: CAN_MANAGE_RUN
+
+        - name: lakebase
+          description: Lakebase instance backing proposals + conversation state.
+          database:
+            instance_name: ${var.lakebase_instance_name}
+            database_name: ${var.lakebase_database_name}
+            permission: CAN_CONNECT_AND_CREATE
+# NOTE on observability: the MLflow experiment at ${var.mlflow_experiment_path} is
+# created lazily by `mlflow.set_experiment()` in the FastAPI lifespan. The App SP
+# uses its `workspace.workspace` scope to access /Shared/. If you observe a
+# permission error in app logs at startup, grant the App SP CAN_EDIT on the
+# experiment manually via the MLflow UI.

@@ -1,0 +1,14 @@
+{
+  "name": "dim-modeler-app",
+  "backend": {
+    "framework": "fastapi",
+    "entrypoint": "backend.main:app",
+    "directory": "backend"
+  },
+  "frontend": {
+    "framework": "react",
+    "directory": "frontend",
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist"
+  }
+}

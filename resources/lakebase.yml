@@ -1,0 +1,29 @@
+resources:
+  database_instances:
+    modeler_pg:
+      name: ${var.lakebase_instance_name}
+      capacity: ${var.lakebase_capacity}
+
+  database_catalogs:
+    modeler_catalog:
+      name: ${var.lakebase_database_catalog_name}
+      database_instance_name: ${resources.database_instances.modeler_pg.name}
+      database_name: ${var.lakebase_database_name}
+      create_database_if_not_exists: true
+
+  # TODO(audit-mirror): synced_database_tables only supports Delta -> Lakebase. The
+  # reverse direction (Lakebase managed PG -> Delta) errors at deploy with
+  # "TABLE_MANAGED_POSTGRESQL not supported as a source in online materialized views."
+  # Replace with a scheduled job that reads ${var.lakebase_database_catalog_name}.public.approvals
+  # via Lakehouse Federation and writes to ${var.catalog_name}.${var.agent_state_schema}.approved_proposals_log.
+  # synced_database_tables:
+  #   approved_proposals_log:
+  #     name: ${var.catalog_name}.${var.agent_state_schema}.approved_proposals_log
+  #     database_instance_name: ${resources.database_instances.modeler_pg.name}
+  #     logical_database_name: ${var.lakebase_database_name}
+  #     spec:
+  #       source_table_full_name: ${var.lakebase_database_catalog_name}.public.approvals
+  #       primary_key_columns:
+  #         - proposal_id
+  #       timeseries_key: approved_at
+  #       scheduling_policy: SNAPSHOT

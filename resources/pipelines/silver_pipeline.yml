@@ -1,0 +1,17 @@
+resources:
+  pipelines:
+    silver_pipeline:
+      name: "[${bundle.target}] ${var.bronze_schema} -> ${var.silver_schema}"
+      catalog: ${var.catalog_name}
+      schema: ${var.silver_schema}
+      serverless: true
+      development: true
+      continuous: false
+      channel: PREVIEW
+      libraries:
+        - file:
+            path: ../../src/silver/silver_pipeline.py
+      configuration:
+        CATALOG_NAME: ${var.catalog_name}
+        BRONZE_SCHEMA: ${var.bronze_schema}
+        SILVER_SCHEMA: ${var.silver_schema}

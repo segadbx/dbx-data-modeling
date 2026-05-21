@@ -1,0 +1,67 @@
+resources:
+  jobs:
+    synth_new_data:
+      name: "[${bundle.target}] extension-wave synth + bronze ingest"
+      description: |
+        Simulates the arrival of NEW business data. Generates 3 additional domain-prefixed
+        tables (procurement_purchase_order, procurement_inventory_movement,
+        reliability_failure_code) into the landing volume under `wave2/`, then Auto Loaders
+        them into `bronze.*` as domain-prefixed Delta tables and applies COMMENT ON.
+
+        Run AFTER `synth_data_gen` has populated bronze with the original 8 tables — the
+        generator samples FK values from those bronze tables to preserve referential
+        integrity to existing dims.
+
+      parameters:
+        - name: catalog
+          default: ${var.catalog_name}
+        - name: bronze_schema
+          default: ${var.bronze_schema}
+        - name: silver_schema
+          default: ${var.silver_schema}
+        - name: volume_path
+          default: /Volumes/${var.catalog_name}/${var.bronze_schema}/${var.landing_volume_name}
+        - name: scale
+          default: ${var.synth_scale}
+        - name: rows
+          default: ""
+
+      tasks:
+        - task_key: generate_new
+          environment_key: serverless_env
+          spark_python_task:
+            python_file: ../../src/synth/generate_new_data.py
+            parameters:
+              - "--catalog"
+              - "{{job.parameters.catalog}}"
+              - "--bronze-schema"
+              - "{{job.parameters.bronze_schema}}"
+              - "--silver-schema"
+              - "{{job.parameters.silver_schema}}"
+              - "--volume-path"
+              - "{{job.parameters.volume_path}}"
+              - "--scale"
+              - "{{job.parameters.scale}}"
+              - "--rows"
+              - "{{job.parameters.rows}}"
+
+        - task_key: bronze_ingest_new
+          depends_on:
+            - task_key: generate_new
+          environment_key: serverless_env
+          spark_python_task:
+            python_file: ../../src/synth/bronze_ingest_new.py
+            parameters:
+              - "--catalog"
+              - "{{job.parameters.catalog}}"
+              - "--bronze-schema"
+              - "{{job.parameters.bronze_schema}}"
+              - "--volume-path"
+              - "{{job.parameters.volume_path}}"
+
+      environments:
+        - environment_key: serverless_env
+          spec:
+            client: "1"
+            dependencies:
+              - dbldatagen>=0.4.0
